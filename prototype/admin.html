@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>受注入力フォームシステム - 管理者画面</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .stats-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .stats-card:hover {
+            transform: translateY(-2px);
+        }
+        .card-header-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+        }
+        .table-responsive {
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            border-radius: 0.375rem;
+        }
+        .trigger-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        .section-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- サイドバー -->
+    <div class="sidebar">
+        <div class="p-3">
+            <div class="d-flex align-items-center mb-4">
+                <i class="bi bi-gear-fill fs-3 me-2"></i>
+                <div>
+                    <h5 class="mb-0">管理者画面</h5>
+                    <small class="text-muted">Admin Panel</small>
+                </div>
+            </div>
+            
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="#dashboard" data-section="dashboard">
+                    <i class="bi bi-speedometer2 me-2"></i>ダッシュボード
+                </a>
+                <a class="nav-link" href="#daily-report" data-section="daily-report">
+                    <i class="bi bi-calendar-day me-2"></i>日報作成
+                </a>
+                <a class="nav-link" href="#monthly-report" data-section="monthly-report">
+                    <i class="bi bi-calendar-month me-2"></i>月次集計
+                </a>
+                <a class="nav-link" href="#product-master" data-section="product-master">
+                    <i class="bi bi-box me-2"></i>商品価格管理
+                </a>
+                <a class="nav-link" href="#staff-management" data-section="staff-management">
+                    <i class="bi bi-people me-2"></i>販売担当者管理
+                </a>
+                <a class="nav-link" href="#trigger-management" data-section="trigger-management">
+                    <i class="bi bi-flag me-2"></i>トリガー管理
+                </a>
+                <a class="nav-link" href="#system-settings" data-section="system-settings">
+                    <i class="bi bi-sliders me-2"></i>システム設定
+                </a>
+            </nav>
+            
+            <div class="mt-auto pt-3">
+                <hr class="text-white-50">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-person-circle fs-4 me-2"></i>
+                    <div>
+                        <div class="fw-bold">佐藤 管理者</div>
+                        <small class="text-muted">admin01</small>
+                    </div>
+                </div>
+                <button class="btn btn-outline-light btn-sm mt-2 w-100" onclick="location.href='login.html'">
+                    <i class="bi bi-box-arrow-right me-1"></i>ログアウト
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- メインコンテンツ -->
+    <div class="main-content">
+        <!-- ダッシュボード -->
+        <div id="dashboard" class="content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-speedometer2 text-primary"></i> ダッシュボード</h2>
+                <div class="text-muted">
+                    <i class="bi bi-calendar3"></i> 2025年8月7日 15:48
+                </div>
+            </div>
+            
+            <!-- 統計カード -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card stats-card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>本日受注件数</h6>
+                                    <h2 class="mb-0">24</h2>
+                                    <small>全5地区合計</small>
+                                </div>
+                                <i class="bi bi-telephone fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>今月受注件数</h6>
+                                    <h2 class="mb-0">187</h2>
+                                    <small>8月累計</small>
+                                </div>
+                                <i class="bi bi-graph-up fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card bg-warning text-dark">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>トリガー件数</h6>
+                                    <h2 class="mb-0">8</h2>
+                                    <small>要対応案件</small>
+                                </div>
+                                <i class="bi bi-flag fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>アクティブユーザー</h6>
+                                    <h2 class="mb-0">12/15</h2>
+                                    <small>本社事務</small>
+                                </div>
+                                <i class="bi bi-people fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- トリガー状況 -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card section-card">
+                        <div class="card-header card-header-custom">
+                            <h5 class="mb-0"><i class="bi bi-flag"></i> トリガー案件一覧</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>受注ID</th>
+                                            <th>顧客名</th>
+                                            <th>トリガー</th>
+                                            <th>担当者</th>
+                                            <th>受付日</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>ORD-001</td>
+                                            <td>山田太郎</td>
+                                            <td><span class="badge bg-warning trigger-badge">確認者対応中</span></td>
+                                            <td>田中</td>
+                                            <td>2025/08/07</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary btn-action">詳細</button>
+                                                <button class="btn btn-sm btn-outline-success btn-action">完了</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>ORD-005</td>
+                                            <td>鈴木花子</td>
+                                            <td><span class="badge bg-danger trigger-badge">キャンセル</span></td>
+                                            <td>佐藤</td>
+                                            <td>2025/08/07</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary btn-action">詳細</button>
+                                                <button class="btn btn-sm btn-outline-secondary btn-action">処理済</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>ORD-012</td>
+                                            <td>田中次郎</td>
+                                            <td><span class="badge bg-info trigger-badge">時間外対応</span></td>
+                                            <td>高橋</td>
+                                            <td>2025/08/06</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary btn-action">詳細</button>
+                                                <button class="btn btn-sm btn-outline-success btn-action">完了</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card section-card">
+                        <div class="card-header card-header-custom">
+                            <h5 class="mb-0"><i class="bi bi-pie-chart"></i> トリガー統計</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>確認者対応中</span>
+                                <span class="badge bg-warning">3件</span>
+                            </div>
+                            <div class="progress mb-3">
+                                <div class="progress-bar bg-warning" style="width: 37.5%"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>キャンセル</span>
+                                <span class="badge bg-danger">2件</span>
+                            </div>
+                            <div class="progress mb-3">
+                                <div class="progress-bar bg-danger" style="width: 25%"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>チラシ未渡し</span>
+                                <span class="badge bg-secondary">1件</span>
+                            </div>
+                            <div class="progress mb-3">
+                                <div class="progress-bar bg-secondary" style="width: 12.5%"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>時間外対応</span>
+                                <span class="badge bg-info">2件</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-info" style="width: 25%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 日報作成 -->
+        <div id="daily-report" class="content-section d-none">
+            <h2><i class="bi bi-calendar-day text-primary"></i> 日報作成</h2>
+            
+            <div class="card section-card">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> 日報生成</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">対象日</label>
+                            <input type="date" class="form-control" value="2025-08-06">
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <button class="btn btn-primary me-2">
+                                <i class="bi bi-file-earmark-plus"></i> 日報生成
+                            </button>
+                            <button class="btn btn-outline-secondary">
+                                <i class="bi bi-download"></i> CSV出力
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="text-primary">24</h3>
+                                    <small>総受注件数</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="text-success">¥480,000</h3>
+                                    <small>総売上金額</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="text-warning">8</h3>
+                                    <small>トリガー件数</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="text-info">5</h3>
+                                    <small>地区数</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 月次集計 -->
+        <div id="monthly-report" class="content-section d-none">
+            <h2><i class="bi bi-calendar-month text-primary"></i> 月次集計</h2>
+            
+            <div class="card section-card">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> 月次レポート生成</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">対象年月</label>
+                            <input type="month" class="form-control" value="2025-08">
+                        </div>
+                        <div class="col-md-8 d-flex align-items-end">
+                            <button class="btn btn-primary me-2">
+                                <i class="bi bi-graph-up"></i> 月次集計実行
+                            </button>
+                            <button class="btn btn-outline-success me-2">
+                                <i class="bi bi-file-earmark-excel"></i> Excel出力
+                            </button>
+                            <button class="btn btn-outline-danger">
+                                <i class="bi bi-file-earmark-pdf"></i> PDF出力
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 商品価格管理 -->
+        <div id="product-master" class="content-section d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-box text-primary"></i> 商品価格管理</h2>
+                <div class="text-muted">
+                    <i class="bi bi-info-circle"></i> 条件付き割引・基礎商品対応
+                </div>
+            </div>
+            
+            <!-- 検索・フィルター -->
+            <div class="card section-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-funnel"></i> 検索・フィルター</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">カテゴリ1</label>
+                            <select class="form-select" id="product-filter-category1">
+                                <option value="">全カテゴリ</option>
+                                <option value="消毒">消毒</option>
+                                <option value="床下機器">床下機器</option>
+                                <option value="天井機器">天井機器</option>
+                                <option value="断熱遮熱">断熱遮熱</option>
+                                <option value="基礎関連">基礎関連</option>
+                                <option value="そのほか">そのほか</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">商品区分</label>
+                            <select class="form-select" id="product-filter-type">
+                                <option value="">全区分</option>
+                                <option value="通常商品">通常商品</option>
+                                <option value="基礎商品">基礎商品</option>
+                                <option value="条件付き割引">条件付き割引</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">商品名</label>
+                            <input type="text" class="form-control" id="product-search-name" placeholder="商品名で検索">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-primary w-100" onclick="searchProducts()">
+                                <i class="bi bi-search"></i> 検索
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card section-card">
+                <div class="card-header card-header-custom d-flex justify-content-between">
+                    <h5 class="mb-0"><i class="bi bi-list"></i> 商品一覧</h5>
+                    <div>
+                        <button class="btn btn-light btn-sm me-2" onclick="importProductCSV()">
+                            <i class="bi bi-upload"></i> CSVインポート
+                        </button>
+                        <button class="btn btn-light btn-sm me-2" onclick="exportProductCSV()">
+                            <i class="bi bi-download"></i> CSVエクスポート
+                        </button>
+                        <button class="btn btn-light btn-sm me-2" onclick="testPriceCalculation()">
+                            <i class="bi bi-calculator"></i> 計算テスト
+                        </button>
+                        <button class="btn btn-light btn-sm" onclick="addNewProduct()">
+                            <i class="bi bi-plus"></i> 新規追加
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>カテゴリ</th>
+                                    <th>商品名</th>
+                                    <th>基本価格</th>
+                                    <th>基本超単価</th>
+                                    <th>基本数量</th>
+                                    <th>特殊設定</th>
+                                    <th>税率</th>
+                                    <th>状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-table-body">
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">消毒</span><br>
+                                        <small>再</small>
+                                    </td>
+                                    <td>
+                                        <strong>消毒・再処理</strong><br>
+                                        <small class="text-muted">通常商品</small>
+                                    </td>
+                                    <td>¥70,000</td>
+                                    <td>¥1,500/㎡</td>
+                                    <td>40㎡</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">標準</span>
+                                    </td>
+                                    <td>10%</td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary btn-action" onclick="editProduct('P001')">編集</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-action" onclick="viewPriceHistory('P001')">履歴</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-warning">そのほか</span><br>
+                                        <small>カビ</small>
+                                    </td>
+                                    <td>
+                                        <strong>カビ処理</strong><br>
+                                        <small class="text-muted">条件付き割引</small>
+                                    </td>
+                                    <td>-</td>
+                                    <td>¥2,500/㎡</td>
+                                    <td>1㎡</td>
+                                    <td>
+                                        <span class="badge bg-warning">条件割引</span><br>
+                                        <small>消毒: ¥1,000/㎡</small><br>
+                                        <small>基礎: ¥1,700/㎡</small>
+                                    </td>
+                                    <td>10%</td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary btn-action" onclick="editProduct('P002')">編集</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-action" onclick="viewPriceHistory('P002')">履歴</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-info">基礎関連</span><br>
+                                        <small>新規工事</small>
+                                    </td>
+                                    <td>
+                                        <strong>外基礎</strong><br>
+                                        <small class="text-muted">基礎商品</small>
+                                    </td>
+                                    <td>高さ別</td>
+                                    <td>長さ加算</td>
+                                    <td>20m</td>
+                                    <td>
+                                        <span class="badge bg-info">高さ別価格</span><br>
+                                        <small>30cm: ¥510,000</small><br>
+                                        <small>40cm: ¥540,000</small><br>
+                                        <small>50cm: ¥570,000</small>
+                                    </td>
+                                    <td>10%</td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary btn-action" onclick="editProduct('P003')">編集</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-action" onclick="viewPriceHistory('P003')">履歴</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-warning">そのほか</span><br>
+                                        <small>BM</small>
+                                    </td>
+                                    <td>
+                                        <strong>BM処理</strong><br>
+                                        <small class="text-muted">条件付き割引</small>
+                                    </td>
+                                    <td>-</td>
+                                    <td>¥3,300/㎡</td>
+                                    <td>1㎡</td>
+                                    <td>
+                                        <span class="badge bg-warning">条件割引</span><br>
+                                        <small>特定商品: ¥2,800/㎡</small>
+                                    </td>
+                                    <td>10%</td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary btn-action" onclick="editProduct('P004')">編集</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-action" onclick="viewPriceHistory('P004')">履歴</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">床下機器</span><br>
+                                        <small>DC2</small>
+                                    </td>
+                                    <td>
+                                        <strong>床下除湿機DC2</strong><br>
+                                        <small class="text-muted">通常商品</small>
+                                    </td>
+                                    <td>¥180,000</td>
+                                    <td>¥180,000/台</td>
+                                    <td>1台</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">標準</span>
+                                    </td>
+                                    <td>10%</td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary btn-action" onclick="editProduct('P005')">編集</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-action" onclick="viewPriceHistory('P005')">履歴</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- ページネーション -->
+                    <nav aria-label="商品一覧ページネーション">
+                        <ul class="pagination justify-content-center mt-3">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">前へ</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <span class="page-link">...</span>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="#">8</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">次へ</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 販売担当者管理 -->
+        <div id="staff-management" class="content-section d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-people text-primary"></i> 販売担当者管理</h2>
+                <div class="text-muted">
+                    <i class="bi bi-info-circle"></i> 全国約300名管理
+                </div>
+            </div>
+            
+            <!-- 検索・フィルター -->
+            <div class="card section-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-search"></i> 検索・フィルター</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">地区コード</label>
+                            <select class="form-select" id="staff-filter-district">
+                                <option value="">全地区</option>
+                                <option value="511">511 - 九州地区</option>
+                                <option value="521">521 - 中国地区</option>
+                                <option value="531">531 - 四国地区</option>
+                                <option value="541">541 - 関西地区</option>
+                                <option value="561">561 - 関東地区</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">社員区分</label>
+                            <select class="form-select" id="staff-filter-type">
+                                <option value="">全区分</option>
+                                <option value="regular">通常社員</option>
+                                <option value="se">SE社員</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">担当者名（カナ）</label>
+                            <input type="text" class="form-control" id="staff-search-kana" placeholder="カタカナで入力">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-primary w-100" onclick="searchStaff()">
+                                <i class="bi bi-search"></i> 検索
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 担当者一覧 -->
+            <div class="card section-card">
+                <div class="card-header card-header-custom d-flex justify-content-between">
+                    <h5 class="mb-0"><i class="bi bi-person-lines-fill"></i> 担当者一覧</h5>
+                    <div>
+                        <button class="btn btn-light btn-sm me-2" onclick="importStaffCSV()">
+                            <i class="bi bi-upload"></i> CSVインポート
+                        </button>
+                        <button class="btn btn-light btn-sm me-2" onclick="exportStaffCSV()">
+                            <i class="bi bi-download"></i> CSVエクスポート
+                        </button>
+                        <button class="btn btn-light btn-sm" onclick="addNewStaff()">
+                            <i class="bi bi-person-plus"></i> 新規追加
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>地区</th>
+                                    <th>所属</th>
+                                    <th>営業社員名</th>
+                                    <th>転記用名前</th>
+                                    <th>検索用カナ</th>
+                                    <th>区分</th>
+                                    <th>状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-table-body">
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">511</span><br>
+                                        <small>九州地区</small>
+                                    </td>
+                                    <td>
+                                        <strong>7</strong><br>
+                                        <small>福岡支店</small>
+                                    </td>
+                                    <td>海江田 尊純</td>
+                                    <td>海江田</td>
+                                    <td>カイエダタカスミ</td>
+                                    <td><span class="badge bg-success">通常</span></td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary btn-action" onclick="editStaff('001')">編集</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-action" onclick="viewStaffHistory('001')">履歴</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">511</span><br>
+                                        <small>九州地区</small>
+                                    </td>
+                                    <td>
+                                        <strong>124</strong><br>
+                                        <small>福岡西営業所</small>
+                                    </td>
+                                    <td>弓弦 健作</td>
+                                    <td>弓弦</td>
+                                    <td>ユミズルケンサク</td>
+                                    <td><span class="badge bg-success">通常</span></td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary btn-action" onclick="editStaff('002')">編集</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-action" onclick="viewStaffHistory('002')">履歴</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">511</span><br>
+                                        <small>九州地区</small>
+                                    </td>
+                                    <td>
+                                        <strong>佐賀</strong><br>
+                                        <small>佐賀営業所</small>
+                                    </td>
+                                    <td>白濱 義治</td>
+                                    <td>白濱(SE)</td>
+                                    <td>シラハマヨシハル</td>
+                                    <td><span class="badge bg-info">SE</span></td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary btn-action" onclick="editStaff('003')">編集</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-action" onclick="viewStaffHistory('003')">履歴</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-warning">521</span><br>
+                                        <small>中国地区</small>
+                                    </td>
+                                    <td>
+                                        <strong>9</strong><br>
+                                        <small>下関支店</small>
+                                    </td>
+                                    <td>砂川 孝</td>
+                                    <td>砂川</td>
+                                    <td>スナガワタカシ</td>
+                                    <td><span class="badge bg-success">通常</span></td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary btn-action" onclick="editStaff('004')">編集</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-action" onclick="viewStaffHistory('004')">履歴</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">511</span><br>
+                                        <small>九州地区</small>
+                                    </td>
+                                    <td>
+                                        <strong>42</strong><br>
+                                        <small>熊本支店</small>
+                                    </td>
+                                    <td>梅本 智</td>
+                                    <td>梅本</td>
+                                    <td>ウメモト42サトシ</td>
+                                    <td><span class="badge bg-success">通常</span></td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary btn-action" onclick="editStaff('005')">編集</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-action" onclick="viewStaffHistory('005')">履歴</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- ページネーション -->
+                    <nav aria-label="担当者一覧ページネーション">
+                        <ul class="pagination justify-content-center mt-3">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">前へ</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <span class="page-link">...</span>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="#">15</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">次へ</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <!-- トリガー管理 -->
+        <div id="trigger-management" class="content-section d-none">
+            <h2><i class="bi bi-flag text-primary"></i> トリガー管理</h2>
+            
+            <div class="card section-card">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0"><i class="bi bi-funnel"></i> トリガーフィルター</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <select class="form-select">
+                                <option value="">全てのトリガー</option>
+                                <option value="1">確認者対応中</option>
+                                <option value="2">キャンセル</option>
+                                <option value="4">チラシ未渡し</option>
+                                <option value="5">時間外対応</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="date" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-primary me-2">
+                                <i class="bi bi-search"></i> 検索
+                            </button>
+                            <button class="btn btn-outline-success">
+                                <i class="bi bi-check-all"></i> 一括処理
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- システム設定 -->
+        <div id="system-settings" class="content-section d-none">
+            <h2><i class="bi bi-sliders text-primary"></i> システム設定</h2>
+            
+            <div class="card section-card">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0"><i class="bi bi-gear"></i> 基本設定</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">システム名</label>
+                            <input type="text" class="form-control" value="受注入力フォームシステム">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">バージョン</label>
+                            <input type="text" class="form-control" value="1.0.0" readonly>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label class="form-label">自動トリガー設定（年齢）</label>
+                            <input type="number" class="form-control" value="70" min="0" max="120">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">時間外判定時刻</label>
+                            <input type="time" class="form-control" value="19:00">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-check"></i> 設定保存
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // サイドバーナビゲーション
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link[data-section]');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // アクティブクラスの管理
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // コンテンツの表示切り替え
+                    const targetSection = this.getAttribute('data-section');
+                    contentSections.forEach(section => {
+                        section.classList.add('d-none');
+                    });
+                    document.getElementById(targetSection).classList.remove('d-none');
+                });
+            });
+        });
+        
+        // 統計データの更新（デモ用）
+        function updateStats() {
+            // リアルタイムでの統計更新をシミュレート
+            const stats = document.querySelectorAll('.stats-card h2');
+            stats.forEach(stat => {
+                const currentValue = parseInt(stat.textContent);
+                if (Math.random() > 0.8) { // 20%の確率で更新
+                    stat.textContent = currentValue + Math.floor(Math.random() * 3);
+                }
+            });
+        }
+        
+        // 5秒ごとに統計を更新
+        setInterval(updateStats, 5000);
+    </script>
+</body>
+</html>

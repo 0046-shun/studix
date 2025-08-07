@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サジェスト表示テスト</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            padding: 2rem;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-header {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h2>担当者サジェスト機能テスト</h2>
+            <p>カタカナで入力するか、カタカナキーボードを使用して入力してください。</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>担当者検索</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="staff_name" class="form-label">担当者名（カタカナ）</label>
+                        <input type="text" id="staff_name" name="staff_name" class="form-control" placeholder="カタカナで入力">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="district_no" class="form-label">地区No</label>
+                        <input type="text" id="district_no" name="district_no" class="form-control" readonly>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="department_no" class="form-label">所属No</label>
+                        <input type="text" id="department_no" name="department_no" class="form-control" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="department_name" class="form-label">所属名</label>
+                        <input type="text" id="department_name" name="department_name" class="form-control" readonly>
+                    </div>
+                </div>
+
+                <!-- カタカナキーボード -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div id="katakana-board">
+                            <div class="katakana-row">
+                                <!-- 「ア」行 -->
+                                <div class="katakana-column me-1">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">ア</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">イ</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">ウ</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">エ</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">オ</button>
+                                </div>
+
+                                <!-- 「カ」行 -->
+                                <div class="katakana-column me-1">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">カ</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">キ</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">ク</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">ケ</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">コ</button>
+                                </div>
+
+                                <!-- 「サ」行 -->
+                                <div class="katakana-column me-1">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">サ</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">シ</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">ス</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">セ</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary katakana-btn mb-1">ソ</button>
+                                </div>
+
+                                <!-- 消去ボタン -->
+                                <div class="katakana-column">
+                                    <button type="button" class="btn btn-sm btn-outline-danger katakana-btn mb-1">消去</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- サジェスト表示エリア -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <!-- サジェスト表示 -->
+                        <div id="staff-suggestions" class="suggestions">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>地区No</th>
+                                        <th>所属No</th>
+                                        <th>所属名</th>
+                                        <th>担当者名</th>
+                                        <th>カタカナ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="suggestions-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="button" class="btn btn-primary" id="show-suggestions-btn">サジェスト表示</button>
+            <button type="button" class="btn btn-secondary" id="clear-btn">クリア</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="form.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 表示ボタンのイベント設定
+            document.getElementById('show-suggestions-btn').addEventListener('click', function() {
+                displayInitialStaffSuggestions();
+            });
+            
+            // クリアボタンのイベント設定
+            document.getElementById('clear-btn').addEventListener('click', function() {
+                document.getElementById('staff_name').value = '';
+                document.getElementById('district_no').value = '';
+                document.getElementById('department_no').value = '';
+                document.getElementById('department_name').value = '';
+                document.getElementById('staff-suggestions').classList.remove('active');
+            });
+            
+            // カタカナボタンのイベント設定
+            document.querySelectorAll('.katakana-btn').forEach(function(button) {
+                button.onclick = function(event) {
+                    const staffNameInput = document.getElementById('staff_name');
+                    const buttonText = this.textContent;
+                    
+                    if (buttonText === '消去') {
+                        staffNameInput.value = '';
+                    } else if (buttonText.trim() !== '') {
+                        staffNameInput.value += buttonText;
+                    }
+                    
+                    // 入力イベントを発火して検索を実行
+                    staffNameInput.dispatchEvent(new Event('input'));
+                    staffNameInput.focus();
+                    
+                    event.preventDefault();
+                    return false;
+                };
+            });
+            
+            // 自動で初期表示
+            setTimeout(displayInitialStaffSuggestions, 500);
+        });
+    </script>
+</body>
+</html> 
