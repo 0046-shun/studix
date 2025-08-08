@@ -253,15 +253,15 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <label class="form-label">商品名 <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" required>
+                                <input type="text" id="main_product_name" class="form-control" required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">数量 <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" min="1" required>
+                                <input type="number" id="main_product_quantity" class="form-control" min="1" required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">金額(税抜)</label>
-                                <input type="number" class="form-control" readonly>
+                                <input type="number" id="main_product_price_ex" class="form-control" readonly>
                             </div>
                         </div>
                     </div>
@@ -437,91 +437,111 @@
                     </div>
                 </div>
                 
-                <!-- 価格計算（高度な価格体系対応） -->
+                <!-- 価格計算 起動カード -->
                 <div class="card mb-3">
-                    <div class="card-header bg-warning text-dark">
-                        <h6 class="mb-0"><i class="bi bi-calculator"></i> 価格計算</h6>
-                        <small>条件付き割引・セット割引対応</small>
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0"><i class="bi bi-calculator"></i> 価格計算</h6>
+                            <small>条件付き割引・セット割引対応</small>
+                        </div>
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasPrice" type="button">
+                            <i class="bi bi-box-arrow-up-right"></i> 開く
+                        </button>
                     </div>
                     <div class="card-body">
-                        <div class="mb-2">
-                            <label class="form-label small">商品カテゴリ</label>
-                            <select id="product_category" class="form-select form-select-sm">
-                                <option value="">選択してください</option>
-                                <option value="消毒">消毒</option>
-                                <option value="床下機器">床下機器</option>
-                                <option value="天井機器">天井機器</option>
-                                <option value="断熱遮熱">断熱遮熱</option>
-                                <option value="基礎関連">基礎関連</option>
-                                <option value="そのほか">そのほか</option>
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small">商品名</label>
-                            <input type="text" id="product_name" class="form-control form-control-sm" placeholder="例：カビ、BM、外基礎">
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <label class="form-label small">数量</label>
-                                <input type="number" id="product_quantity" class="form-control form-control-sm" placeholder="数量" min="1">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small">単位</label>
-                                <select id="product_unit" class="form-select form-select-sm">
-                                    <option value="㎡">㎡</option>
-                                    <option value="m">m</option>
-                                    <option value="個">個</option>
-                                    <option value="式">式</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- 基礎商品用追加項目 -->
-                        <div id="kiso_options" style="display: none;">
-                            <div class="row mt-2">
-                                <div class="col-6">
-                                    <label class="form-label small">高さ(cm)</label>
-                                    <select id="kiso_height" class="form-select form-select-sm">
-                                        <option value="30">30cm</option>
-                                        <option value="40">40cm</option>
-                                        <option value="50">50cm</option>
-                                        <option value="60">60cm</option>
-                                        <option value="70">70cm</option>
-                                        <option value="80">80cm</option>
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small">長さ(m)</label>
-                                    <input type="number" id="kiso_length" class="form-control form-control-sm" placeholder="20" min="1">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-2">
-                            <label class="form-label small">値引き</label>
-                            <input type="number" id="discount_value" class="form-control form-control-sm" placeholder="10（%）または 5000（円）">
-                        </div>
-                        
-                        <button class="btn btn-warning btn-sm w-100 mt-2" onclick="calculatePrice()">計算実行</button>
-                        
-                        <!-- 計算結果表示エリア -->
-                        <div id="price_calculation_results" class="mt-3" style="display: none;">
-                            <hr>
-                            <div class="small">
-                                <div id="calculation_details"></div>
-                                <div class="mt-2 p-2 bg-light rounded">
-                                    <strong>合計:</strong><br>
-                                    <span class="text-success">税抜: ¥<span id="result_ex_tax">0</span></span><br>
-                                    <span class="text-primary">税込: ¥<span id="result_in_tax">0</span></span>
-                                </div>
-                            </div>
-                        </div>
+                        <small class="text-muted">詳細な計算は右ドロワーで行います。</small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
+    <!-- 価格計算オフキャンバス（右ドロワー） -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasPrice" aria-labelledby="offcanvasPriceLabel">
+        <div class="offcanvas-header">
+            <h5 id="offcanvasPriceLabel"><i class="bi bi-calculator"></i> 価格計算</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="mb-2">
+                <label class="form-label small">商品カテゴリ</label>
+                <select id="product_category" class="form-select form-select-sm">
+                    <option value="">選択してください</option>
+                    <option value="消毒">消毒</option>
+                    <option value="床下機器">床下機器</option>
+                    <option value="天井機器">天井機器</option>
+                    <option value="断熱遮熱">断熱遮熱</option>
+                    <option value="基礎関連">基礎関連</option>
+                    <option value="そのほか">そのほか</option>
+                </select>
+            </div>
+            <div class="mb-2">
+                <label class="form-label small">商品名</label>
+                <select id="product_name_select" class="form-select form-select-sm" disabled>
+                    <option value="">カテゴリを選択してください</option>
+                </select>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <label class="form-label small">数量</label>
+                    <input type="number" id="product_quantity" class="form-control form-control-sm" placeholder="数量" min="1">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small">単位</label>
+                    <select id="product_unit" class="form-select form-select-sm">
+                        <option value="㎡">㎡</option>
+                        <option value="m">m</option>
+                        <option value="個">個</option>
+                        <option value="式">式</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 基礎商品用追加項目 -->
+            <div id="kiso_options" style="display: none;">
+                <div class="row mt-2">
+                    <div class="col-6">
+                        <label class="form-label small">高さ(cm)</label>
+                        <select id="kiso_height" class="form-select form-select-sm">
+                            <option value="30">30cm</option>
+                            <option value="40">40cm</option>
+                            <option value="50">50cm</option>
+                            <option value="60">60cm</option>
+                            <option value="70">70cm</option>
+                            <option value="80">80cm</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small">長さ(m)</label>
+                        <input type="number" id="kiso_length" class="form-control form-control-sm" placeholder="20" min="1">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-2">
+                <label class="form-label small">値引き</label>
+                <input type="number" id="discount_value" class="form-control form-control-sm" placeholder="10（%）または 5000（円）">
+            </div>
+            
+            <button class="btn btn-warning btn-sm w-100 mt-2" onclick="calculatePrice()">計算実行</button>
+            <button class="btn btn-outline-primary btn-sm w-100 mt-2" id="add_to_basket" type="button">
+                <i class="bi bi-cart-plus"></i> 商品を追加
+            </button>
+            
+            <!-- 計算結果表示エリア -->
+            <div id="price_calculation_results" class="mt-3" style="display: none;">
+                <hr>
+                <div class="small">
+                    <div id="calculation_details"></div>
+                    <div class="mt-2 p-2 bg-light rounded">
+                        <strong>合計:</strong><br>
+                        <span class="text-success">税抜: ¥<span id="result_ex_tax">0</span></span><br>
+                        <span class="text-primary">税込: ¥<span id="result_in_tax">0</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // 年齢チェックでトリガー自動設定のデモ
@@ -551,6 +571,271 @@
                     historyInputs[3].value = total.toFixed(2); // 過量履歴総計
                 });
             }
+        });
+
+        // ------------------------------
+        // 価格計算: カテゴリ→商品名 連動
+        // ------------------------------
+        const CATEGORY_TO_PRODUCTS = {
+            '消毒': [
+                { id: 'dis-001', name: '消毒・再処理', unit: '㎡' },
+                { id: 'dis-002', name: 'カビ処理', unit: '㎡' },
+                { id: 'dis-003', name: 'BM処理', unit: '式' }
+            ],
+            '床下機器': [
+                { id: 'uf-001', name: '床下換気扇', unit: '個' },
+                { id: 'uf-002', name: '調湿材設置', unit: '㎡' }
+            ],
+            '天井機器': [
+                { id: 'ce-001', name: '天井断熱材', unit: '㎡' }
+            ],
+            '断熱遮熱': [
+                { id: 'ins-001', name: '遮熱フィルム', unit: '㎡' }
+            ],
+            '基礎関連': [
+                { id: 'kiso-001', name: '外基礎', unit: 'm' },
+                { id: 'kiso-002', name: '中基礎', unit: 'm' },
+                { id: 'kiso-003', name: '外クラック', unit: 'm' },
+                { id: 'kiso-004', name: '中片クラック', unit: 'm' },
+                { id: 'kiso-005', name: '中両面クラック', unit: 'm' }
+            ],
+            'そのほか': [
+                { id: 'etc-001', name: '一般管理費', unit: '式' }
+            ]
+        };
+
+        const categorySelect = document.getElementById('product_category');
+        const productSelect = document.getElementById('product_name_select');
+        const unitSelect = document.getElementById('product_unit');
+        const kisoOptions = document.getElementById('kiso_options');
+
+        categorySelect.addEventListener('change', () => {
+            const category = categorySelect.value;
+            productSelect.innerHTML = '';
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = category ? '商品を選択してください' : 'カテゴリを選択してください';
+            productSelect.appendChild(opt);
+
+            if (!category || !CATEGORY_TO_PRODUCTS[category]) {
+                productSelect.disabled = true;
+                kisoOptions.style.display = 'none';
+                return;
+            }
+
+            CATEGORY_TO_PRODUCTS[category].forEach(p => {
+                const o = document.createElement('option');
+                o.value = p.id;
+                o.textContent = p.name;
+                o.dataset.unit = p.unit;
+                productSelect.appendChild(o);
+            });
+
+            productSelect.disabled = false;
+
+            // 基礎関連カテゴリのときに高さ/長さ欄を表示
+            if (category === '基礎関連') {
+                kisoOptions.style.display = '';
+            } else {
+                kisoOptions.style.display = 'none';
+            }
+        });
+
+        productSelect.addEventListener('change', () => {
+            const selected = productSelect.options[productSelect.selectedIndex];
+            const unit = selected?.dataset?.unit;
+            if (unit) {
+                unitSelect.value = unit;
+            }
+        });
+
+        // ------------------------------
+        // バスケット（選択商品リスト）
+        // ------------------------------
+        const addToBasketBtn = document.getElementById('add_to_basket');
+        const selectedList = document.getElementById('selected_products_list');
+        const selectedCard = document.getElementById('selected_products_card');
+        const clearBasketBtn = document.getElementById('clear_basket');
+
+        const basket = [];
+
+        function renderBasket() {
+            selectedList.innerHTML = '';
+            if (basket.length === 0) {
+                selectedList.innerHTML = '<li class="list-group-item text-muted">まだ商品が追加されていません</li>';
+                selectedCard.style.display = 'none';
+                return;
+            }
+            selectedCard.style.display = '';
+            basket.forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `
+                    <div>
+                        <strong>${item.productName}</strong>
+                        <span class="text-muted">（${item.category}）</span>
+                        <div class="small">数量: ${item.quantity}${item.unit}
+                        ${item.kisoInfo ? ' | ' + item.kisoInfo : ''}
+                        ${item.discount ? ' | 値引き: ' + item.discount : ''}
+                        </div>
+                    </div>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-danger" data-index="${idx}"><i class="bi bi-x"></i></button>
+                    </div>
+                `;
+                selectedList.appendChild(li);
+            });
+            // 削除イベント
+            selectedList.querySelectorAll('button[data-index]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    basket.splice(index, 1);
+                    renderBasket();
+                });
+            });
+        }
+
+        addToBasketBtn.addEventListener('click', () => {
+            const category = categorySelect.value;
+            const productOption = productSelect.options[productSelect.selectedIndex];
+            const productId = productOption?.value || '';
+            const productName = productOption?.textContent || '';
+            const quantity = parseFloat(document.getElementById('product_quantity').value) || 0;
+            const unit = unitSelect.value;
+            const discountValue = document.getElementById('discount_value').value;
+            
+            if (!category || !productId || quantity <= 0) {
+                // 簡易バリデーション
+                alert('カテゴリ・商品名・数量を入力してください');
+                return;
+            }
+
+            let kisoInfo = '';
+            if (category === '基礎関連') {
+                const height = document.getElementById('kiso_height').value;
+                const length = document.getElementById('kiso_length').value;
+                kisoInfo = `高さ:${height}cm 長さ:${length}m`;
+            }
+
+            const discount = discountValue ? discountValue + (parseFloat(discountValue) < 100 ? '%' : '円') : '';
+
+            basket.push({ category, productId, productName, quantity, unit, kisoInfo, discount });
+            renderBasket();
+        });
+
+        clearBasketBtn.addEventListener('click', () => {
+            basket.splice(0, basket.length);
+            renderBasket();
+        });
+
+        // ------------------------------
+        // 単品計算（簡易プロトタイプ）
+        // ------------------------------
+        const UNIT_PRICE_MAP = {
+            'dis-001': 2500,  // 消毒・再処理（㎡）
+            'dis-002': 2500,  // カビ処理（㎡）
+            'dis-003': 3300,  // BM処理（式）
+            'uf-001': 10000,  // 床下換気扇（個）
+            'uf-002': 2000,   // 调湿材設置（㎡）
+            'ce-001': 3000,   // 天井断熱材（㎡）
+            'ins-001': 4000,  // 遮熱フィルム（㎡）
+            'etc-001': 20000  // 一般管理費（式/固定）
+        };
+
+        function formatYen(n) {
+            return (Math.floor(n) || 0).toLocaleString();
+        }
+
+        function calculateKisoAmount(heightCm, lengthM) {
+            const baseLength = 20;
+            const height = String(heightCm);
+            const table = {
+                '30': { base: 480000, add: 6000 },
+                '40': { base: 540000, add: 7000 },
+                '50': { base: 600000, add: 8000 },
+                '60': { base: 660000, add: 9000 },
+                '70': { base: 720000, add: 10000 },
+                '80': { base: 780000, add: 11000 }
+            };
+            const row = table[height] || table['40'];
+            let amount = row.base;
+            const extra = Math.max(0, (parseFloat(lengthM) || 0) - baseLength);
+            if (extra > 0) amount += extra * row.add;
+            return { amount, base: row.base, extraLen: extra, addUnit: row.add, baseLength };
+        }
+
+        window.calculatePrice = function() {
+            const category = categorySelect.value;
+            const productOption = productSelect.options[productSelect.selectedIndex];
+            const productId = productOption?.value || '';
+            const productName = productOption?.textContent || '';
+            const qty = parseFloat(document.getElementById('product_quantity').value) || 0;
+            const unit = unitSelect.value;
+            const discountInput = document.getElementById('discount_value').value;
+
+            if (!category || !productId || qty <= 0) {
+                alert('カテゴリ・商品名・数量を入力してください');
+                return;
+            }
+
+            let subtotalEx = 0;
+            let detailHtml = '';
+
+            if (category === '基礎関連') {
+                const h = document.getElementById('kiso_height').value;
+                const len = parseFloat(document.getElementById('kiso_length').value) || 0;
+                const k = calculateKisoAmount(h, len);
+                subtotalEx = k.amount;
+                detailHtml += `基礎(${h}cm) 基本 ${k.baseLength}m: ¥${formatYen(k.base)}<br>`;
+                if (k.extraLen > 0) {
+                    detailHtml += `超過 ${k.extraLen}m × ¥${formatYen(k.addUnit)}/m = ¥${formatYen(k.extraLen * k.addUnit)}<br>`;
+                }
+            } else if (productId === 'etc-001') {
+                subtotalEx = UNIT_PRICE_MAP[productId] || 0;
+                detailHtml += `固定費: ¥${formatYen(subtotalEx)}<br>`;
+            } else {
+                const unitPrice = UNIT_PRICE_MAP[productId] || 0;
+                subtotalEx = unitPrice * qty;
+                detailHtml += `${productName} ${qty}${unit} × ¥${formatYen(unitPrice)} = ¥${formatYen(subtotalEx)}<br>`;
+            }
+
+            // 値引き
+            let discount = 0;
+            if (discountInput) {
+                const dv = parseFloat(discountInput) || 0;
+                if (dv > 0 && dv < 100) {
+                    discount = Math.floor(subtotalEx * (dv / 100));
+                    detailHtml += `値引き ${dv}% = -¥${formatYen(discount)}<br>`;
+                } else if (dv >= 100) {
+                    discount = Math.min(Math.floor(dv), subtotalEx);
+                    detailHtml += `値引き 固定 = -¥${formatYen(discount)}<br>`;
+                }
+            }
+
+            const exTax = subtotalEx - discount;
+            const tax = Math.floor(exTax * 0.1);
+            const inTax = exTax + tax;
+
+            // 表示
+            const resultWrap = document.getElementById('price_calculation_results');
+            const details = document.getElementById('calculation_details');
+            document.getElementById('result_ex_tax').textContent = formatYen(exTax);
+            document.getElementById('result_in_tax').textContent = formatYen(inTax);
+            details.innerHTML = detailHtml + `税額(10%): ¥${formatYen(tax)}`;
+            resultWrap.style.display = '';
+        }
+
+        // バスケット先頭要素を中央フォームへ反映
+        const applyToMainBtn = document.getElementById('apply_selected_to_main');
+        applyToMainBtn.addEventListener('click', () => {
+            if (basket.length === 0) {
+                alert('バスケットに商品がありません');
+                return;
+            }
+            const item = basket[0];
+            document.getElementById('main_product_name').value = item.productName;
+            document.getElementById('main_product_quantity').value = item.quantity;
+            // 金額は現時点では未計算のため空のまま
         });
     </script>
 </body>

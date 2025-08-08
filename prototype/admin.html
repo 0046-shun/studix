@@ -100,6 +100,9 @@
                 <a class="nav-link" href="#trigger-management" data-section="trigger-management">
                     <i class="bi bi-flag me-2"></i>トリガー管理
                 </a>
+                <a class="nav-link" href="#user-management" data-section="user-management">
+                    <i class="bi bi-person-gear me-2"></i>ユーザー管理
+                </a>
                 <a class="nav-link" href="#system-settings" data-section="system-settings">
                     <i class="bi bi-sliders me-2"></i>システム設定
                 </a>
@@ -854,6 +857,195 @@
             </div>
         </div>
         
+        <!-- ユーザー管理 -->
+        <div id="user-management" class="content-section d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-person-gear text-primary"></i> ユーザー管理</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    <i class="bi bi-person-plus"></i> 新規ユーザー追加
+                </button>
+            </div>
+            
+            <!-- ユーザー一覧 -->
+            <div class="card section-card">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0"><i class="bi bi-people"></i> ユーザー一覧</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" placeholder="ユーザー名で検索">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select">
+                                <option value="">権限レベル</option>
+                                <option value="user">一般ユーザー</option>
+                                <option value="admin">管理者</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select">
+                                <option value="">アカウント状態</option>
+                                <option value="active">有効</option>
+                                <option value="inactive">無効</option>
+                                <option value="locked">ロック</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-primary w-100">
+                                <i class="bi bi-search"></i> 検索
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ユーザーID</th>
+                                    <th>氏名</th>
+                                    <th>メールアドレス</th>
+                                    <th>所属部署</th>
+                                    <th>権限レベル</th>
+                                    <th>アカウント状態</th>
+                                    <th>最終ログイン</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>admin01</td>
+                                    <td>佐藤 管理者</td>
+                                    <td>admin01@company.com</td>
+                                    <td>システム管理部</td>
+                                    <td><span class="badge bg-danger">管理者</span></td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>2025-08-08 10:30</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary me-1" title="編集">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning me-1" title="パスワードリセット">
+                                            <i class="bi bi-key"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" title="削除">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>user01</td>
+                                    <td>田中 花子</td>
+                                    <td>user01@company.com</td>
+                                    <td>本社事務部</td>
+                                    <td><span class="badge bg-secondary">一般ユーザー</span></td>
+                                    <td><span class="badge bg-success">有効</span></td>
+                                    <td>2025-08-08 09:15</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary me-1" title="編集">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning me-1" title="パスワードリセット">
+                                            <i class="bi bi-key"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" title="削除">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>user02</td>
+                                    <td>鈴木 次郎</td>
+                                    <td>user02@company.com</td>
+                                    <td>本社事務部</td>
+                                    <td><span class="badge bg-secondary">一般ユーザー</span></td>
+                                    <td><span class="badge bg-warning">ロック</span></td>
+                                    <td>2025-08-07 16:45</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary me-1" title="編集">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning me-1" title="パスワードリセット">
+                                            <i class="bi bi-key"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success me-1" title="アンロック">
+                                            <i class="bi bi-unlock"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" title="削除">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>user03</td>
+                                    <td>高橋 三郎</td>
+                                    <td>user03@company.com</td>
+                                    <td>本社事務部</td>
+                                    <td><span class="badge bg-secondary">一般ユーザー</span></td>
+                                    <td><span class="badge bg-secondary">無効</span></td>
+                                    <td>2025-08-05 14:20</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary me-1" title="編集">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning me-1" title="パスワードリセット">
+                                            <i class="bi bi-key"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success me-1" title="有効化">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" title="削除">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- セキュリティ設定 -->
+            <div class="card section-card">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0"><i class="bi bi-shield-lock"></i> セキュリティ設定</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="passwordExpiry" checked>
+                                <label class="form-check-label" for="passwordExpiry">
+                                    パスワード有効期限を設定
+                                </label>
+                            </div>
+                            <div class="mt-2">
+                                <label class="form-label">有効期限（日数）</label>
+                                <input type="number" class="form-control" value="90" min="1" max="365">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="mfaEnabled">
+                                <label class="form-check-label" for="mfaEnabled">
+                                    多要素認証を有効化
+                                </label>
+                            </div>
+                            <div class="mt-2">
+                                <label class="form-label">ログイン失敗回数制限</label>
+                                <input type="number" class="form-control" value="5" min="1" max="10">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-check"></i> 設定保存
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- システム設定 -->
         <div id="system-settings" class="content-section d-none">
             <h2><i class="bi bi-sliders text-primary"></i> システム設定</h2>
@@ -888,6 +1080,86 @@
                             <i class="bi bi-check"></i> 設定保存
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新規ユーザー追加モーダル -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-plus"></i> 新規ユーザー追加
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">ユーザーID <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" placeholder="例: user04" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">氏名 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" placeholder="例: 山田 太郎" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">メールアドレス <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" placeholder="例: user04@company.com" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">所属部署 <span class="text-danger">*</span></label>
+                                    <select class="form-select" required>
+                                        <option value="">選択してください</option>
+                                        <option value="本社事務部">本社事務部</option>
+                                        <option value="システム管理部">システム管理部</option>
+                                        <option value="営業部">営業部</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">権限レベル <span class="text-danger">*</span></label>
+                                    <select class="form-select" required>
+                                        <option value="">選択してください</option>
+                                        <option value="user">一般ユーザー</option>
+                                        <option value="admin">管理者</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">初期パスワード <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" placeholder="8文字以上" required>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="generatePassword()">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">パスワード有効期限</label>
+                                    <input type="date" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="forcePasswordChange" checked>
+                                        <label class="form-check-label" for="forcePasswordChange">
+                                            初回ログイン時にパスワード変更を強制
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary">
+                        <i class="bi bi-check"></i> ユーザー追加
+                    </button>
                 </div>
             </div>
         </div>
@@ -932,6 +1204,16 @@
         
         // 5秒ごとに統計を更新
         setInterval(updateStats, 5000);
+        
+        // パスワード生成機能
+        function generatePassword() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+            let password = '';
+            for (let i = 0; i < 12; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.querySelector('#addUserModal input[type="password"]').value = password;
+        }
     </script>
 </body>
 </html>
