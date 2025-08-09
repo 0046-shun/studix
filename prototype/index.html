@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>受注入力フォームシステム - メイン画面</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css'">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         .sidebar {
@@ -131,7 +131,7 @@
                     </div>
                 </div>
                 
-                <form>
+                <form id="order_form">
                     <!-- 受電情報 -->
                     <div class="form-section">
                         <h5 class="section-title"><i class="bi bi-telephone-inbound"></i> 受電情報</h5>
@@ -348,7 +348,7 @@
                         <div class="row mt-3">
                             <div class="col-md-3">
                                 <label class="form-label">トリガー</label>
-                                <select class="form-select">
+                                <select class="form-select" name="trigger">
                                     <option value="">完全受注</option>
                                     <option value="1" selected>確認者対応中</option>
                                     <option value="2">キャンセル</option>
@@ -361,8 +361,31 @@
                                 <textarea class="form-control" rows="3"></textarea>
                             </div>
                         </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <label class="form-label">要望（任意・備考とは別）</label>
+                                <textarea id="request_text" class="form-control" rows="3" placeholder="ユーザーからの要望があれば記入" maxlength="1000"></textarea>
+                                <small class="text-muted">最大1000文字 <span id="request_text_count">0</span>/1000</small>
+                            </div>
+                        </div>
                     </div>
                     
+                    <!-- 選択商品（バスケット） -->
+                    <div id="selected_products_card" class="card" style="display:none;">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-basket"></i> 選択商品
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" id="apply_selected_to_main" class="btn btn-outline-primary"><i class="bi bi-arrow-down-square"></i> 中央フォームへ反映</button>
+                                <button type="button" id="clear_basket" class="btn btn-outline-secondary"><i class="bi bi-trash"></i> クリア</button>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <ul id="selected_products_list" class="list-group list-group-flush"></ul>
+                        </div>
+                    </div>
+
                     <!-- 送信ボタン -->
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-lg me-3">
@@ -371,6 +394,7 @@
                         <button type="reset" class="btn btn-outline-secondary btn-lg">
                             <i class="bi bi-arrow-clockwise"></i> リセット
                         </button>
+                        <div id="submit_status" class="mt-3"></div>
                     </div>
                 </form>
             </div>
@@ -444,7 +468,7 @@
                             <h6 class="mb-0"><i class="bi bi-calculator"></i> 価格計算</h6>
                             <small>条件付き割引・セット割引対応</small>
                         </div>
-                        <button class="btn btn-sm btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasPrice" type="button">
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasPrice" aria-controls="offcanvasPrice" type="button">
                             <i class="bi bi-box-arrow-up-right"></i> 開く
                         </button>
                     </div>
@@ -542,7 +566,7 @@
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/bootstrap/js/bootstrap.bundle.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js'"></script>
     <script>
         // 年齢チェックでトリガー自動設定のデモ
         document.querySelector('input[type="number"]').addEventListener('change', function() {
@@ -558,6 +582,17 @@
                 confirmAlert.style.display = 'none';
             }
         });
+
+        // 要望欄 文字数カウント/制限
+        (function(){
+          const req = document.getElementById('request_text');
+          const counter = document.getElementById('request_text_count');
+          if (req && counter) {
+            const update = () => { counter.textContent = String((req.value || '').length); };
+            req.addEventListener('input', update);
+            update();
+          }
+        })();
         
         // 過量履歴総計の自動計算
         const historyInputs = document.querySelectorAll('input[type="number"][step="0.01"]');
@@ -660,6 +695,7 @@
         const basket = [];
 
         function renderBasket() {
+            if (!selectedList || !selectedCard) return;
             selectedList.innerHTML = '';
             if (basket.length === 0) {
                 selectedList.innerHTML = '<li class="list-group-item text-muted">まだ商品が追加されていません</li>';
@@ -723,10 +759,12 @@
             renderBasket();
         });
 
-        clearBasketBtn.addEventListener('click', () => {
-            basket.splice(0, basket.length);
-            renderBasket();
-        });
+        if (clearBasketBtn) {
+            clearBasketBtn.addEventListener('click', () => {
+                basket.splice(0, basket.length);
+                renderBasket();
+            });
+        }
 
         // ------------------------------
         // 単品計算（簡易プロトタイプ）
@@ -827,15 +865,119 @@
 
         // バスケット先頭要素を中央フォームへ反映
         const applyToMainBtn = document.getElementById('apply_selected_to_main');
-        applyToMainBtn.addEventListener('click', () => {
-            if (basket.length === 0) {
-                alert('バスケットに商品がありません');
-                return;
+        if (applyToMainBtn) {
+            applyToMainBtn.addEventListener('click', () => {
+                if (basket.length === 0) {
+                    alert('バスケットに商品がありません');
+                    return;
+                }
+                const item = basket[0];
+                document.getElementById('main_product_name').value = item.productName;
+                document.getElementById('main_product_quantity').value = item.quantity;
+            });
+        }
+
+        // オフキャンバス手動フォールバック（データ属性が効かない環境向け）
+        (function(){
+            try {
+                const triggerBtn = document.querySelector('[data-bs-toggle="offcanvas"][data-bs-target="#offcanvasPrice"]');
+                const offcanvasEl = document.getElementById('offcanvasPrice');
+
+                // 必要なら body 直下へ移動（固定配置の描画不具合対策）
+                if (offcanvasEl && offcanvasEl.parentElement !== document.body) {
+                    document.body.appendChild(offcanvasEl);
+                }
+
+                if (triggerBtn && offcanvasEl) {
+                    if (window.bootstrap && window.bootstrap.Offcanvas) {
+                        triggerBtn.addEventListener('click', () => {
+                            const instance = window.bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
+                            instance.show();
+                        });
+                    } else {
+                        // JSが読み込まれていない場合の簡易フォールバック（目視確認用）
+                        triggerBtn.addEventListener('click', () => {
+                            offcanvasEl.style.visibility = 'visible';
+                            offcanvasEl.style.transform = 'translateX(0)';
+                            offcanvasEl.style.display = 'block';
+                        });
+                        console.warn('[studix] Bootstrap JSが読み込まれていない可能性があります。');
+                    }
+                }
+            } catch (e) { console.warn('[studix] offcanvas init error:', e); }
+        })();
+
+        // ---------------------------------
+        // 受注データ送信（API接続）
+        // - Orders → /api/v1/orders/sheets
+        // - Requests(任意) → /api/v1/requests/sheets
+        // ---------------------------------
+        const orderForm = document.getElementById('order_form');
+        const submitStatus = document.getElementById('submit_status');
+        orderForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitStatus.innerHTML = '';
+ 
+            // 最小限の送信データ（UIの主要項目から構成）
+            const payload = {
+                staff: {
+                    display_name: document.getElementById('staff_display_name').value || '',
+                    district_code: document.getElementById('staff_district_code').value || '',
+                    department_code: document.getElementById('staff_department_code').value || ''
+                },
+                order: {
+                    reception_date: document.querySelector('input[type="date"]').value || '',
+                    greeting_time: document.querySelector('input[type="time"]').value || '',
+                    customer: {
+                      name: document.querySelector('div.form-section input[type="text"]').value || '',
+                      age: parseInt(document.querySelector('div.form-section input[type="number"]').value) || '',
+                      phone_fixed: document.querySelectorAll('input[type="tel"]')[0]?.value || '',
+                      phone_mobile: document.querySelectorAll('input[type="tel"]')[1]?.value || ''
+                    },
+                    items: [
+                      {
+                        product_name: document.getElementById('main_product_name').value || '',
+                        quantity: parseFloat(document.getElementById('main_product_quantity').value) || 0,
+                        unit: '個',
+                        amount_ex_tax: parseFloat(document.getElementById('main_product_price_ex').value) || 0
+                      }
+                    ],
+                    payment_method: document.querySelector('select.form-select')?.value || '',
+                    reception_staff: document.querySelectorAll('input.form-control')[7]?.value || '',
+                    flyer: document.querySelectorAll('select.form-select')[1]?.value || '',
+                    estimate_no: document.querySelectorAll('input.form-control')[8]?.value || '',
+                    other_company: parseFloat(document.querySelectorAll('input[step="0.01"]')[0]?.value) || 0,
+                    history: parseFloat(document.querySelectorAll('input[step="0.01"]')[1]?.value) || 0,
+                    current: parseFloat(document.querySelectorAll('input[step="0.01"]')[2]?.value) || 0,
+                    total_history: parseFloat(document.querySelectorAll('input[step="0.01"]')[3]?.value) || 0,
+                    trigger: document.querySelector('select[name="trigger"]').value || '',
+                    remarks: document.querySelectorAll('textarea.form-control')[0]?.value || ''
+                },
+                request_text: (document.getElementById('request_text').value || '').trim()
+            };
+ 
+            async function postJson(url, body) {
+              const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok || data.success === false) {
+                const msg = data?.error?.message || `HTTP ${res.status}`;
+                throw new Error(msg);
+              }
+              return data;
             }
-            const item = basket[0];
-            document.getElementById('main_product_name').value = item.productName;
-            document.getElementById('main_product_quantity').value = item.quantity;
-            // 金額は現時点では未計算のため空のまま
+
+            try {
+                await postJson('/api/v1/orders/sheets', { order: payload.order, staff: payload.staff });
+                let msg = '<div class="alert alert-success small mb-2">受注用シートへ送信しました。</div>';
+                // 要望があれば別シートへ
+                if (payload.request_text.length > 0) {
+                    await postJson('/api/v1/requests/sheets', { request_text: payload.request_text, staff: payload.staff, created_at: new Date().toISOString() });
+                    msg += `<div class="alert alert-info small">要望シートへ転記しました（地区:${payload.staff.district_code} 所属:${payload.staff.department_code} 転記用名前:${payload.staff.display_name}）。</div>`;
+                }
+                submitStatus.innerHTML = msg;
+            } catch (err) {
+                submitStatus.innerHTML = '<div class="alert alert-danger small">送信に失敗しました。時間をおいて再度お試しください。</div>';
+            }
         });
     </script>
 </body>

@@ -1,0 +1,353 @@
+openapi: 3.0.3
+info:
+  title: Studix API
+  version: 0.1.0
+  description: |
+    受注入力フォームシステム API（雛形）。
+    現状の実装（エミュレーション含む）に合わせた最小仕様。
+servers:
+  - url: http://localhost:3000
+    description: Local server
+
+tags:
+  - name: Health
+  - name: Orders
+  - name: Requests
+  - name: Employees
+  - name: Products
+  - name: Users
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ApiResponse:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+        data:
+          nullable: true
+        error:
+          nullable: true
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              nullable: true
+    StaffRef:
+      type: object
+      properties:
+        display_name:
+          type: string
+        district_code:
+          type: string
+        department_code:
+          type: string
+    OrderItem:
+      type: object
+      properties:
+        product_name: { type: string }
+        quantity: { type: number }
+        unit: { type: string }
+        amount_ex_tax: { type: number }
+    OrderPayload:
+      type: object
+      properties:
+        reception_date: { type: string, format: date }
+        greeting_time: { type: string }
+        customer:
+          type: object
+          properties:
+            name: { type: string }
+            age: { type: integer }
+            phone_fixed: { type: string }
+            phone_mobile: { type: string }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/OrderItem' }
+        payment_method: { type: string }
+        reception_staff: { type: string }
+        flyer: { type: string }
+        estimate_no: { type: string }
+        other_company: { type: number }
+        history: { type: number }
+        current: { type: number }
+        total_history: { type: number }
+        trigger: { type: string }
+        remarks: { type: string }
+    User:
+      type: object
+      properties:
+        userId: { type: string }
+        name: { type: string }
+        email: { type: string }
+        department: { type: string }
+        role: { type: string, enum: [admin, user] }
+        status: { type: string, enum: [active, inactive, locked] }
+        lastLogin: { type: string, format: date-time, nullable: true }
+        loginFailureCount: { type: integer }
+        passwordNeedsReset: { type: boolean }
+        passwordExpiresAt: { type: string, format: date, nullable: true }
+        passwordSetAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+paths:
+  /api/v1/health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+
+  /api/v1/orders/sheets:
+    post:
+      tags: [Orders]
+      summary: Append order row to Orders Sheet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order, staff]
+              properties:
+                order:
+                  $ref: '#/components/schemas/OrderPayload'
+                staff:
+                  $ref: '#/components/schemas/StaffRef'
+      responses:
+        '200':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Validation error
+        '502':
+          description: External service error
+
+  /api/v1/requests/sheets:
+    post:
+      tags: [Requests]
+      summary: Append request row to Requests Sheet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [request_text, staff]
+              properties:
+                request_text: { type: string }
+                staff: { $ref: '#/components/schemas/StaffRef' }
+                created_at: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+        '400': { description: Validation error }
+        '502': { description: External service error }
+
+  /api/v1/employees/search:
+    get:
+      tags: [Employees]
+      summary: Search employees (mock)
+      parameters:
+        - in: query
+          name: name_kana
+          schema: { type: string }
+        - in: query
+          name: district_code
+          schema: { type: string }
+        - in: query
+          name: department_code
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20, maximum: 100 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+
+  /api/v1/products/search:
+    get:
+      tags: [Products]
+      summary: Search products (mock)
+      parameters:
+        - in: query
+          name: category_division
+          schema: { type: string }
+        - in: query
+          name: category_1
+          schema: { type: string }
+        - in: query
+          name: category_2
+          schema: { type: string }
+        - in: query
+          name: product_name
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 50, maximum: 100 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+
+  /api/v1/products/calculate-price:
+    post:
+      tags: [Products]
+      summary: Calculate price (simple)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_id]
+              properties:
+                product_id: { type: string }
+                quantity: { type: number }
+                height_cm: { type: number }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+        '400': { description: Validation error }
+
+  /api/v1/users:
+    get:
+      tags: [Users]
+      summary: List users
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: role
+          schema: { type: string, enum: [admin, user] }
+        - in: query
+          name: status
+          schema: { type: string, enum: [active, inactive, locked] }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20, maximum: 100 }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+    post:
+      tags: [Users]
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, name, email, department, role]
+              properties:
+                userId: { type: string }
+                name: { type: string }
+                email: { type: string }
+                department: { type: string }
+                role: { type: string, enum: [admin, user] }
+                password: { type: string }
+                passwordExpiresAt: { type: string, format: date }
+                forcePasswordChange: { type: boolean }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+        '400': { description: Validation error }
+        '409': { description: Duplicate }
+
+  /api/v1/users/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Users]
+      summary: Get user
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+        '404': { description: Not Found }
+    put:
+      tags: [Users]
+      summary: Update user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                email: { type: string }
+                department: { type: string }
+                role: { type: string, enum: [admin, user] }
+                status: { type: string, enum: [active, inactive, locked] }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+        '404': { description: Not Found }
+    delete:
+      tags: [Users]
+      summary: Delete user
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+        '404': { description: Not Found }
+
+  /api/v1/users/{id}/reset-password:
+    post:
+      tags: [Users]
+      summary: Reset user password (flag)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+        '404': { description: Not Found }
+
+  /api/v1/users/{id}/unlock:
+    post:
+      tags: [Users]
+      summary: Unlock user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+        '404': { description: Not Found }
+

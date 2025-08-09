@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Markdown Preview</title>
+  <link rel="stylesheet" href="lib/github-markdown.min.css" />
+  <style>
+    body { margin: 0; }
+    .container { max-width: 980px; margin: 0 auto; padding: 24px; }
+    .markdown-body { box-sizing: border-box; min-width: 200px; max-width: 100%; margin: 0 auto; }
+    pre code { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <article id="app" class="markdown-body">読み込み中...</article>
+  </div>
+
+  <script src="lib/marked.min.js"></script>
+  <script src="lib/purify.min.js"></script>
+  <script src="lib/mermaid.min.js"></script>
+  <script>
+    // Mermaid init
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: false });
+    }
+
+    async function fetchText(path) {
+      const res = await fetch(path, { cache: 'no-cache' });
+      if (!res.ok) throw new Error('Failed to load: ' + path);
+      return await res.text();
+    }
+
+    function getParam(name, defaultValue) {
+      const url = new URL(location.href);
+      return url.searchParams.get(name) || defaultValue;
+    }
+
+    async function render() {
+      const mdPath = getParam('file', '要件定義.md');
+      try {
+        const raw = await fetchText(mdPath);
+        // GitHub風テーブル/改行等に合わせたオプション
+        marked.setOptions({ breaks: true, gfm: true });
+        const html = marked.parse(raw);
+
+        // sanitize
+        const safe = DOMPurify.sanitize(html, { ADD_ATTR: ['target'] });
+        const app = document.getElementById('app');
+        app.innerHTML = safe;
+
+        // Mermaidブロックを変換
+        const blocks = app.querySelectorAll('code.language-mermaid, pre code.language-mermaid');
+        if (blocks.length && window.mermaid) {
+          blocks.forEach((codeEl, idx) => {
+            const parent = codeEl.closest('pre') || codeEl.parentElement;
+            const graph = codeEl.textContent;
+            const id = 'mmd-' + idx + '-' + Date.now();
+            const div = document.createElement('div');
+            div.className = 'mermaid';
+            div.textContent = graph;
+            parent.replaceWith(div);
+          });
+          await mermaid.run({ querySelector: '.mermaid' });
+        }
+      } catch (e) {
+        document.getElementById('app').textContent = '読み込みエラー: ' + e.message;
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
+
+
+

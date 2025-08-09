@@ -874,17 +874,17 @@
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <input type="text" class="form-control" placeholder="ユーザー名で検索">
+                            <input type="text" id="user-search-q" class="form-control" placeholder="ユーザー名/ID/メールで検索">
                         </div>
                         <div class="col-md-3">
-                            <select class="form-select">
+                            <select class="form-select" id="user-search-role">
                                 <option value="">権限レベル</option>
                                 <option value="user">一般ユーザー</option>
                                 <option value="admin">管理者</option>
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <select class="form-select">
+                            <select class="form-select" id="user-search-status">
                                 <option value="">アカウント状態</option>
                                 <option value="active">有効</option>
                                 <option value="inactive">無効</option>
@@ -892,7 +892,7 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-outline-primary w-100">
+                            <button id="user-search-button" class="btn btn-outline-primary w-100">
                                 <i class="bi bi-search"></i> 検索
                             </button>
                         </div>
@@ -912,93 +912,8 @@
                                     <th>操作</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>admin01</td>
-                                    <td>佐藤 管理者</td>
-                                    <td>admin01@company.com</td>
-                                    <td>システム管理部</td>
-                                    <td><span class="badge bg-danger">管理者</span></td>
-                                    <td><span class="badge bg-success">有効</span></td>
-                                    <td>2025-08-08 10:30</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary me-1" title="編集">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-warning me-1" title="パスワードリセット">
-                                            <i class="bi bi-key"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger" title="削除">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>user01</td>
-                                    <td>田中 花子</td>
-                                    <td>user01@company.com</td>
-                                    <td>本社事務部</td>
-                                    <td><span class="badge bg-secondary">一般ユーザー</span></td>
-                                    <td><span class="badge bg-success">有効</span></td>
-                                    <td>2025-08-08 09:15</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary me-1" title="編集">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-warning me-1" title="パスワードリセット">
-                                            <i class="bi bi-key"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger" title="削除">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>user02</td>
-                                    <td>鈴木 次郎</td>
-                                    <td>user02@company.com</td>
-                                    <td>本社事務部</td>
-                                    <td><span class="badge bg-secondary">一般ユーザー</span></td>
-                                    <td><span class="badge bg-warning">ロック</span></td>
-                                    <td>2025-08-07 16:45</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary me-1" title="編集">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-warning me-1" title="パスワードリセット">
-                                            <i class="bi bi-key"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-success me-1" title="アンロック">
-                                            <i class="bi bi-unlock"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger" title="削除">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>user03</td>
-                                    <td>高橋 三郎</td>
-                                    <td>user03@company.com</td>
-                                    <td>本社事務部</td>
-                                    <td><span class="badge bg-secondary">一般ユーザー</span></td>
-                                    <td><span class="badge bg-secondary">無効</span></td>
-                                    <td>2025-08-05 14:20</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary me-1" title="編集">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-warning me-1" title="パスワードリセット">
-                                            <i class="bi bi-key"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-success me-1" title="有効化">
-                                            <i class="bi bi-check-circle"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger" title="削除">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                            <tbody id="user-table-body">
+                                <tr><td colspan="8" class="text-muted">読み込み中...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1101,19 +1016,19 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">ユーザーID <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" placeholder="例: user04" required>
+                                    <input type="text" id="add-user-id" class="form-control" placeholder="例: user04" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">氏名 <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" placeholder="例: 山田 太郎" required>
+                                    <input type="text" id="add-user-name" class="form-control" placeholder="例: 山田 太郎" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">メールアドレス <span class="text-danger">*</span></label>
-                                    <input type="email" class="form-control" placeholder="例: user04@company.com" required>
+                                    <input type="email" id="add-user-email" class="form-control" placeholder="例: user04@company.com" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">所属部署 <span class="text-danger">*</span></label>
-                                    <select class="form-select" required>
+                                    <select id="add-user-dept" class="form-select" required>
                                         <option value="">選択してください</option>
                                         <option value="本社事務部">本社事務部</option>
                                         <option value="システム管理部">システム管理部</option>
@@ -1124,7 +1039,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">権限レベル <span class="text-danger">*</span></label>
-                                    <select class="form-select" required>
+                                    <select id="add-user-role" class="form-select" required>
                                         <option value="">選択してください</option>
                                         <option value="user">一般ユーザー</option>
                                         <option value="admin">管理者</option>
@@ -1133,7 +1048,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">初期パスワード <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control" placeholder="8文字以上" required>
+                                        <input type="password" id="add-user-password" class="form-control" placeholder="8文字以上" required>
                                         <button class="btn btn-outline-secondary" type="button" onclick="generatePassword()">
                                             <i class="bi bi-arrow-clockwise"></i>
                                         </button>
@@ -1141,12 +1056,12 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">パスワード有効期限</label>
-                                    <input type="date" class="form-control">
+                                    <input type="date" id="add-user-password-expiry" class="form-control">
                                 </div>
                                 <div class="mb-3">
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="forcePasswordChange" checked>
-                                        <label class="form-check-label" for="forcePasswordChange">
+                                        <input class="form-check-input" type="checkbox" id="add-user-force-change" checked>
+                                        <label class="form-check-label" for="add-user-force-change">
                                             初回ログイン時にパスワード変更を強制
                                         </label>
                                     </div>
@@ -1157,7 +1072,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                    <button type="button" class="btn btn-primary">
+                    <button type="button" id="add-user-submit" class="btn btn-primary">
                         <i class="bi bi-check"></i> ユーザー追加
                     </button>
                 </div>
@@ -1166,6 +1081,10 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // API Base autodetect for local file preview
+      window.STUDIX_API_BASE = window.STUDIX_API_BASE || (location.protocol === 'file:' ? 'http://localhost:3000' : '');
+    </script>
     <script>
         // サイドバーナビゲーション
         document.addEventListener('DOMContentLoaded', function() {
@@ -1212,8 +1131,156 @@
             for (let i = 0; i < 12; i++) {
                 password += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-            document.querySelector('#addUserModal input[type="password"]').value = password;
+            const pw = document.querySelector('#addUserModal input[type="password"]');
+            if (pw) pw.value = password;
         }
-    </script>
+
+        // ------------------------------
+        // Users API Client & UI Binding
+        // ------------------------------
+        (function(){
+          const API_BASE = window.STUDIX_API_BASE || '';
+          const tbody = document.getElementById('user-table-body');
+          const btnSearch = document.getElementById('user-search-button');
+          const qInput = document.getElementById('user-search-q');
+          const roleSelect = document.getElementById('user-search-role');
+          const statusSelect = document.getElementById('user-search-status');
+
+          async function api(path, options) {
+            const res = await fetch(API_BASE + path, Object.assign({ headers: { 'Content-Type': 'application/json' } }, options || {}));
+            let data = null;
+            try { data = await res.json(); } catch { data = null; }
+            if (!res.ok || (data && data.success === false)) {
+              const msg = data?.error?.message || `HTTP ${res.status}`;
+              throw new Error(msg);
+            }
+            return data?.data ?? data;
+          }
+
+          function badge(text, cls) { return `<span class="badge ${cls}">${text}</span>`; }
+
+          function renderUsers(users) {
+            tbody.innerHTML = '';
+            if (!users || users.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="8" class="text-muted">該当するユーザーがいません</td></tr>';
+              return;
+            }
+            users.forEach(u => {
+              const roleBadge = u.role === 'admin' ? badge('管理者', 'bg-danger') : badge('一般ユーザー', 'bg-secondary');
+              let statusBadge = badge('有効', 'bg-success');
+              if (u.status === 'inactive') statusBadge = badge('無効', 'bg-secondary');
+              if (u.status === 'locked') statusBadge = badge('ロック', 'bg-warning');
+              const lastLogin = u.lastLogin || '-';
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td>${u.userId}</td>
+                <td>${u.name || ''}</td>
+                <td>${u.email || ''}</td>
+                <td>${u.department || ''}</td>
+                <td>${roleBadge}</td>
+                <td>${statusBadge}</td>
+                <td>${lastLogin}</td>
+                <td>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-outline-primary" data-action="edit" data-id="${u.userId}" title="編集"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-outline-warning" data-action="reset" data-id="${u.userId}" title="パスワードリセット"><i class="bi bi-key"></i></button>
+                    ${u.status === 'locked' ? `<button class="btn btn-outline-success" data-action="unlock" data-id="${u.userId}" title="アンロック"><i class="bi bi-unlock"></i></button>`: ''}
+                    <button class="btn btn-outline-danger" data-action="delete" data-id="${u.userId}" title="削除"><i class="bi bi-trash"></i></button>
+                  </div>
+                </td>`;
+              tbody.appendChild(tr);
+            });
+
+            tbody.querySelectorAll('button[data-action]').forEach(btn => {
+              btn.addEventListener('click', async () => {
+                const id = btn.getAttribute('data-id');
+                const action = btn.getAttribute('data-action');
+                try {
+                  if (action === 'delete') {
+                    if (!confirm(`ユーザー ${id} を削除しますか？`)) return;
+                    await api(`/api/v1/users/${encodeURIComponent(id)}`, { method: 'DELETE' });
+                  } else if (action === 'reset') {
+                    if (!confirm(`ユーザー ${id} のパスワードをリセットしますか？`)) return;
+                    await api(`/api/v1/users/${encodeURIComponent(id)}/reset-password`, { method: 'POST' });
+                  } else if (action === 'unlock') {
+                    await api(`/api/v1/users/${encodeURIComponent(id)}/unlock`, { method: 'POST' });
+                  } else if (action === 'edit') {
+                    const currentRow = btn.closest('tr');
+                    const name = prompt('氏名を入力', currentRow.children[1].textContent.trim());
+                    if (name === null) return;
+                    const email = prompt('メールアドレスを入力', currentRow.children[2].textContent.trim());
+                    if (email === null) return;
+                    const department = prompt('所属部署を入力', currentRow.children[3].textContent.trim());
+                    if (department === null) return;
+                    const role = prompt('権限 (admin/user)', currentRow.children[4].textContent.includes('管理者') ? 'admin' : 'user');
+                    if (role === null) return;
+                    const status = prompt('状態 (active/inactive/locked)', currentRow.children[5].textContent.includes('ロック') ? 'locked' : (currentRow.children[5].textContent.includes('無効') ? 'inactive' : 'active'));
+                    if (status === null) return;
+                    await api(`/api/v1/users/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify({ name, email, department, role, status }) });
+                  }
+                  await loadUsers();
+                } catch (e) {
+                  alert(`操作に失敗しました: ${e.message}`);
+                }
+              });
+            });
+          }
+
+          async function loadUsers() {
+            try {
+              const params = new URLSearchParams();
+              if (qInput.value.trim()) params.set('q', qInput.value.trim());
+              if (roleSelect.value) params.set('role', roleSelect.value);
+              if (statusSelect.value) params.set('status', statusSelect.value);
+              const data = await api(`/api/v1/users?${params.toString()}`);
+              renderUsers(data.users || []);
+            } catch (e) {
+              tbody.innerHTML = `<tr><td colspan="8" class="text-danger">読み込みに失敗しました: ${e.message}</td></tr>`;
+            }
+          }
+
+          if (btnSearch) btnSearch.addEventListener('click', (e) => { e.preventDefault(); loadUsers(); });
+          // 初回ロード
+          loadUsers();
+
+          // 追加: モーダルの登録
+          const addBtn = document.getElementById('add-user-submit');
+          if (addBtn) addBtn.addEventListener('click', async () => {
+            const id = document.getElementById('add-user-id').value.trim();
+            const name = document.getElementById('add-user-name').value.trim();
+            const email = document.getElementById('add-user-email').value.trim();
+            const department = document.getElementById('add-user-dept').value;
+            const role = document.getElementById('add-user-role').value;
+            const password = document.getElementById('add-user-password').value;
+            const passwordExpiresAt = document.getElementById('add-user-password-expiry').value || null;
+            const forcePasswordChange = document.getElementById('add-user-force-change').checked;
+            if (!id || !name || !email || !department || !role || !password) {
+              alert('未入力の必須項目があります');
+              return;
+            }
+            try {
+              await api('/api/v1/users', { method: 'POST', body: JSON.stringify({ userId: id, name, email, department, role, password, passwordExpiresAt, forcePasswordChange }) });
+              // 閉じる
+              const modalEl = document.getElementById('addUserModal');
+              if (modalEl && window.bootstrap) {
+                const instance = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                instance.hide();
+              }
+              // クリア
+              document.getElementById('add-user-id').value = '';
+              document.getElementById('add-user-name').value = '';
+              document.getElementById('add-user-email').value = '';
+              document.getElementById('add-user-dept').value = '';
+              document.getElementById('add-user-role').value = '';
+              document.getElementById('add-user-password').value = '';
+              document.getElementById('add-user-password-expiry').value = '';
+              document.getElementById('add-user-force-change').checked = true;
+              await loadUsers();
+            } catch (e) {
+              alert(`ユーザー追加に失敗しました: ${e.message}`);
+            }
+          });
+        })();
+        </script>
 </body>
 </html>

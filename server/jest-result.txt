@@ -1,0 +1,49 @@
+
+> studix-server@0.1.0 test
+> jest --runInBand --runInBand --verbose --forceExit __tests__/products_employees_users.test.js
+
+[0mGET /api/v1/health [32m200[0m 5.378 ms - 73[0m
+[0mGET /api/v1/products/search?product_name=%E6%B6%88%E6%AF%92 [32m200[0m 0.698 ms - 321[0m
+[0mPOST /api/v1/products/calculate-price [32m200[0m 0.783 ms - 139[0m
+[0mPOST /api/v1/products/calculate-price [32m200[0m 0.311 ms - 143[0m
+[0mPOST /api/v1/products/calculate-price [32m200[0m 0.466 ms - 143[0m
+[0mGET /api/v1/employees/search?name_kana= [31m500[0m 29.813 ms - 91[0m
+[0mPOST /api/v1/users [32m201[0m 419.991 ms - 378[0m
+[0mGET /api/v1/users [32m200[0m 35.451 ms - 450[0m
+[0mGET /api/v1/users/testuser [32m200[0m 35.393 ms - 378[0m
+[0mPUT /api/v1/users/testuser [32m200[0m 480.544 ms - 380[0m
+[0mPOST /api/v1/users/testuser/reset-password [32m200[0m 469.911 ms - 38[0m
+[0mPOST /api/v1/users/testuser/unlock [32m200[0m 450.939 ms - 41[0m
+[0mDELETE /api/v1/users/testuser [32m200[0m 468.479 ms - 40[0m
+FAIL __tests__/products_employees_users.test.js (700.261 s)
+  Products/Employees/Users API
+    √ GET /api/v1/health (122 ms)
+    √ GET /api/v1/products/search (19 ms)
+    √ POST /api/v1/products/calculate-price (2240 ms)
+    √ POST /api/v1/products/calculate-price (kiso height variants) (30 ms)
+    × GET /api/v1/employees/search (46 ms)
+    √ Users CRUD (2475 ms)
+
+  ● Products/Employees/Users API › GET /api/v1/employees/search
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m 51 |[39m   test([32m'GET /api/v1/employees/search'[39m[33m,[39m [36masync[39m () [33m=>[39m {
+     [90m 52 |[39m     [36mconst[39m res [33m=[39m [36mawait[39m request(app)[33m.[39m[36mget[39m([32m'/api/v1/employees/search'[39m)[33m.[39mquery({ name_kana[33m:[39m [32m''[39m })[33m;[39m
+    [31m[1m>[22m[39m[90m 53 |[39m     expect(res[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m    |[39m                        [31m[1m^[22m[39m
+     [90m 54 |[39m     expect(res[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 55 |[39m     expect(res[33m.[39mbody[33m.[39mdata)[33m.[39mtoHaveProperty([32m'employees'[39m)[33m;[39m
+     [90m 56 |[39m   })[33m;[39m[0m
+
+      at Object.toBe (__tests__/products_employees_users.test.js:53:24)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 5 passed, 6 total
+Snapshots:   0 total
+Time:        709.104 s, estimated 715 s
+Ran all test suites matching /__tests__\\products_employees_users.test.js/i.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
