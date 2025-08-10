@@ -28,8 +28,12 @@ describe('Orders/Requests API', () => {
 
   test('POST /api/v1/requests/sheets (with request)', async () => {
     const payload = {
-      request_text: '工期短縮希望',
-      staff: { display_name: '田中', district_code: '511', department_code: '7' },
+      request_text: global.testHelpers.mockRequestData.request_text,
+      staff: { 
+        display_name: global.testHelpers.mockRequestData.transfer_name, 
+        district_code: global.testHelpers.mockRequestData.district_code, 
+        department_code: global.testHelpers.mockRequestData.department_code 
+      },
       created_at: '2025-08-09T10:15:24Z',
     };
     const res = await request(app).post('/api/v1/requests/sheets').send(payload);

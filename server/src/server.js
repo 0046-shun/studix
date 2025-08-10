@@ -106,15 +106,25 @@ app.get('/api/v1/employees/search', async (req, res) => {
     const dept = (req.query.department_code || '').toString();
     const limit = Math.min(parseInt(req.query.limit || '20', 10) || 20, 100);
 
-    const file = path.join(__dirname, '..', '..', 'tantou', 'test-staff.json');
+    // Prefer server-local mock (server/tantou/test-staff.json), fallback to repo root (tantou/test-staff.json)
+    const candidateFiles = [
+      path.join(__dirname, '..', 'tantou', 'test-staff.json'),
+      path.join(__dirname, '..', '..', 'tantou', 'test-staff.json'),
+    ];
     let list = [];
-    try {
-      const raw = fs.readFileSync(file, 'utf8');
-      const parsed = JSON.parse(raw || '[]');
-      list = Array.isArray(parsed) ? parsed : [];
-    } catch {
-      list = [];
+    let loaded = false;
+    for (const filePath of candidateFiles) {
+      try {
+        const raw = fs.readFileSync(filePath, 'utf8');
+        const parsed = JSON.parse(raw || '[]');
+        list = Array.isArray(parsed) ? parsed : [];
+        loaded = true;
+        break;
+      } catch {
+        // try next
+      }
     }
+    if (!loaded) list = [];
 
     const filtered = list.filter((e) => {
       const okKana = kana ? (e.search_kana || '').includes(kana) : true;

@@ -7,7 +7,10 @@
   "type": "commonjs",
   "scripts": {
     "start": "node src/server.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "test:coverage": "jest --coverage --runInBand",
+    "test:watch": "jest --watch --runInBand",
+    "test:verbose": "jest --verbose --runInBand"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -18,9 +21,5 @@
   "devDependencies": {
     "jest": "^29.7.0",
     "supertest": "^6.3.4"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "testMatch": ["**/__tests__/**/*.test.js"]
   }
 }

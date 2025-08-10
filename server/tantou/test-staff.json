@@ -1,0 +1,23 @@
+[
+  {
+    "district_code": "001",
+    "department_code": "A01",
+    "transfer_name": "田中太郎",
+    "employee_id": "EMP001",
+    "status": "active"
+  },
+  {
+    "district_code": "002",
+    "department_code": "B01",
+    "transfer_name": "佐藤花子",
+    "employee_id": "EMP002",
+    "status": "active"
+  },
+  {
+    "district_code": "003",
+    "department_code": "C01",
+    "transfer_name": "鈴木一郎",
+    "employee_id": "EMP003",
+    "status": "inactive"
+  }
+]
