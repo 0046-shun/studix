@@ -101,6 +101,17 @@
             margin-bottom: 1rem;
             font-size: 0.85rem;
         }
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #198754; }
+        .alert {
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -120,19 +131,22 @@
             <h6 class="text-muted mb-2"><i class="bi bi-info-circle"></i> デモ用アカウント</h6>
             <div class="row">
                 <div class="col-6">
-                    <strong>本社事務 (15名):</strong><br>
+                    <strong>本社事務:</strong><br>
                     ID: office01<br>
-                    PW: demo123<br>
+                    PW: Passw0rd!<br>
                     <small class="text-muted">受注入力・検索機能</small>
                 </div>
                 <div class="col-6">
-                    <strong>システム管理者 (2名):</strong><br>
+                    <strong>システム管理者:</strong><br>
                     ID: admin01<br>
-                    PW: admin123<br>
-                    <small class="text-muted">日報・月次集計・価格管理</small>
+                    PW: Admin123!<br>
+                    <small class="text-muted">システム管理・レポート作成</small>
                 </div>
             </div>
         </div>
+        
+        <!-- ログイン状態メッセージ -->
+        <div id="loginMessage" class="alert" style="display: none;"></div>
         
         <form id="loginForm">
             <!-- ユーザー種別選択 -->
@@ -169,6 +183,7 @@
             <div class="form-floating">
                 <input type="password" class="form-control" id="password" placeholder="パスワード" required>
                 <label for="password"><i class="bi bi-lock me-2"></i>パスワード</label>
+                <div class="password-strength" id="passwordStrength"></div>
             </div>
             
             <!-- ログインオプション -->
@@ -179,11 +194,11 @@
                         ログイン状態を保持
                     </label>
                 </div>
-                <a href="#" class="text-decoration-none small">パスワードを忘れた方</a>
+                <a href="#" class="text-decoration-none small" onclick="showPasswordReset()">パスワードを忘れた方</a>
             </div>
             
             <!-- ログインボタン -->
-            <button type="submit" class="btn btn-primary btn-login w-100">
+            <button type="submit" class="btn btn-primary btn-login w-100" id="loginBtn">
                 <i class="bi bi-box-arrow-in-right me-2"></i>ログイン
             </button>
             
@@ -206,7 +221,26 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="mb-0">ユーザーIDまたはパスワードが正しくありません。</p>
+                    <p class="mb-0" id="errorMessage">ユーザーIDまたはパスワードが正しくありません。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- パスワードリセットモーダル -->
+    <div class="modal fade" id="passwordResetModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title"><i class="bi bi-key"></i> パスワードリセット</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>パスワードリセットの申請が完了しました。</p>
+                    <p class="text-muted small">システム管理者が新しいパスワードを設定し、メールでお知らせします。</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
@@ -217,6 +251,113 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // API設定
+        const API_BASE_URL = 'http://localhost:3000';
+        
+        // モックログイン用のテストユーザー
+        const MOCK_USERS = {
+            'office01': { userId: 'office01', role: 'user', name: '本社事務 太郎', password: 'Passw0rd!' },
+            'admin01': { userId: 'admin01', role: 'admin', name: 'システム管理者', password: 'Admin123!' }
+        };
+        
+        // モックログイン関数
+        async function mockLogin(userId, password) {
+            const user = MOCK_USERS[userId];
+            if (!user || user.password !== password) {
+                return { success: false, error: { message: 'ユーザーIDまたはパスワードが正しくありません' } };
+            }
+            
+            // モックトークンを生成
+            const mockToken = btoa(JSON.stringify({ userId: user.userId, role: user.role }));
+            return {
+                success: true,
+                data: {
+                    accessToken: mockToken,
+                    refreshToken: mockToken,
+                    user: { userId: user.userId, role: user.role, name: user.name }
+                }
+            };
+        }
+        
+        // セッション管理
+        class SessionManager {
+            static setSession(userData) {
+                const sessionData = {
+                    ...userData,
+                    loginTime: new Date().toISOString(),
+                    expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString() // 1時間
+                };
+                sessionStorage.setItem('userSession', JSON.stringify(sessionData));
+                localStorage.setItem('userSession', JSON.stringify(sessionData));
+            }
+            
+            static getSession() {
+                const session = sessionStorage.getItem('userSession') || localStorage.getItem('userSession');
+                if (!session) return null;
+                
+                const sessionData = JSON.parse(session);
+                if (new Date(sessionData.expiresAt) < new Date()) {
+                    this.clearSession();
+                    return null;
+                }
+                return sessionData;
+            }
+            
+            static clearSession() {
+                sessionStorage.removeItem('userSession');
+                localStorage.removeItem('userSession');
+            }
+            
+            static isAuthenticated() {
+                return this.getSession() !== null;
+            }
+            
+            static getAccessToken() {
+                const session = this.getSession();
+                return session ? session.accessToken : null;
+            }
+            
+            static getRefreshToken() {
+                const session = this.getSession();
+                return session ? session.refreshToken : null;
+            }
+        }
+        
+        // パスワード強度チェック
+        function checkPasswordStrength(password) {
+            const strengthDiv = document.getElementById('passwordStrength');
+            if (!password) {
+                strengthDiv.textContent = '';
+                return;
+            }
+            
+            let score = 0;
+            let feedback = [];
+            
+            if (password.length >= 8) score++;
+            else feedback.push('8文字以上');
+            
+            if (/[a-z]/.test(password)) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+            
+            let strength, className;
+            if (score < 3) {
+                strength = '弱い';
+                className = 'strength-weak';
+            } else if (score < 5) {
+                strength = '普通';
+                className = 'strength-medium';
+            } else {
+                strength = '強い';
+                className = 'strength-strong';
+            }
+            
+            strengthDiv.textContent = `パスワード強度: ${strength}`;
+            strengthDiv.className = `password-strength ${className}`;
+        }
+        
         // ユーザー種別選択
         function selectRole(role) {
             // 全ての role-card から selected クラスを削除
@@ -236,65 +377,142 @@
             
             if (role === 'office') {
                 userIdInput.value = 'office01';
-                passwordInput.value = 'demo123';
+                passwordInput.value = 'Passw0rd!';
             } else if (role === 'admin') {
                 userIdInput.value = 'admin01';
-                passwordInput.value = 'admin123';
+                passwordInput.value = 'Admin123!';
+            }
+            
+            // パスワード強度を更新
+            checkPasswordStrength(passwordInput.value);
+        }
+        
+        // パスワードリセット表示
+        function showPasswordReset() {
+            const modal = new bootstrap.Modal(document.getElementById('passwordResetModal'));
+            modal.show();
+        }
+        
+        // APIログイン
+        async function loginWithAPI(userId, password) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, password })
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    return { success: true, data: data.data };
+                } else {
+                    return { success: false, error: data.error || { message: 'ログインに失敗しました' } };
+                }
+            } catch (error) {
+                // サーバーが利用できない場合はモックログインを使用
+                console.log('サーバーに接続できません。モックログインを使用します。');
+                return await mockLogin(userId, password);
             }
         }
         
-        // 初期選択状態を設定
+        // 初期化
         document.addEventListener('DOMContentLoaded', function() {
+            // 既存セッションがある場合はリダイレクト
+            if (SessionManager.isAuthenticated()) {
+                const session = SessionManager.getSession();
+                if (session.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+                return;
+            }
+            
             selectRole('office');
+            
+            // パスワード強度チェック
+            document.getElementById('password').addEventListener('input', function(e) {
+                checkPasswordStrength(e.target.value);
+            });
         });
         
         // ログインフォーム送信処理
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const userId = document.getElementById('userId').value;
             const password = document.getElementById('password').value;
             const userRole = document.querySelector('input[name="userRole"]:checked').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
             
-            // デモ用認証ロジック
-            let isValid = false;
-            let redirectUrl = '';
+            // ボタンを無効化
+            const loginBtn = document.getElementById('loginBtn');
+            const originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>ログイン中...';
+            loginBtn.disabled = true;
             
-            if (userRole === 'office' && userId === 'office01' && password === 'demo123') {
-                isValid = true;
-                redirectUrl = 'index.html';
-            } else if (userRole === 'admin' && userId === 'admin01' && password === 'admin123') {
-                isValid = true;
-                redirectUrl = 'admin.html';
-            }
-            
-            if (isValid) {
-                // ログイン成功時の処理
-                const button = document.querySelector('.btn-login');
-                button.innerHTML = '<i class="bi bi-check-circle me-2"></i>ログイン中...';
-                button.disabled = true;
+            try {
+                // APIログイン
+                const result = await loginWithAPI(userId, password);
                 
-                // セッション情報を保存（デモ用）
-                sessionStorage.setItem('user', JSON.stringify({
-                    userId: userId,
-                    role: userRole,
-                    loginTime: new Date().toISOString()
-                }));
+                if (result.success) {
+                    const userData = result.data;
+                    
+                    // ロールチェック
+                    if (userData.user.role !== userRole) {
+                        throw new Error('選択されたユーザー種別と実際の権限が一致しません');
+                    }
+                    
+                                         // セッション保存
+                     SessionManager.setSession({
+                         userId: userData.user.userId,
+                         role: userData.user.role,
+                         name: userData.user.name,
+                         accessToken: userData.accessToken,
+                         refreshToken: userData.refreshToken
+                     });
+                    
+                    // ログイン成功メッセージ
+                    showMessage('ログインに成功しました。リダイレクト中...', 'success');
+                    
+                    // リダイレクト
+                    setTimeout(() => {
+                        if (userData.user.role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    }, 1000);
+                    
+                } else {
+                    throw new Error(result.error.message);
+                }
                 
-                // リダイレクト
-                setTimeout(() => {
-                    window.location.href = redirectUrl;
-                }, 1000);
-            } else {
-                // ログイン失敗時の処理
-                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-                errorModal.show();
+            } catch (error) {
+                showMessage(error.message, 'danger');
                 
                 // パスワードフィールドをクリア
                 document.getElementById('password').value = '';
                 document.getElementById('password').focus();
+                
+            } finally {
+                // ボタンを復元
+                loginBtn.innerHTML = originalText;
+                loginBtn.disabled = false;
             }
         });
+        
+        // メッセージ表示
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('loginMessage');
+            messageDiv.textContent = message;
+            messageDiv.className = `alert alert-${type}`;
+            messageDiv.style.display = 'block';
+            
+            // 3秒後に非表示
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
         
         // エンターキーでログイン
         document.addEventListener('keypress', function(e) {

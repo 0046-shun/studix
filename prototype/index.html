@@ -38,6 +38,21 @@
             background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
         }
+        .session-info {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+            color: white;
+        }
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #c82333, #a71e2a);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -123,9 +138,12 @@
                 <!-- ヘッダー -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2><i class="bi bi-clipboard-plus text-primary"></i> 受注入力フォーム</h2>
-                    <div>
-                        <span class="text-muted me-3">ユーザー: 本社事務 田中</span>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="location.href='login.html'">
+                    <div class="d-flex align-items-center">
+                        <div class="session-info me-3">
+                            <small class="text-muted">ログイン中:</small><br>
+                            <strong id="userInfo">読み込み中...</strong>
+                        </div>
+                        <button class="btn logout-btn btn-sm" onclick="logout()">
                             <i class="bi bi-box-arrow-right"></i> ログアウト
                         </button>
                     </div>
@@ -566,8 +584,128 @@
             </div>
         </div>
     </div>
+    <!-- トースト通知コンテナ -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+        <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-danger text-white">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong class="me-auto">エラー</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="errorToastBody">
+                エラーが発生しました
+            </div>
+        </div>
+        
+        <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">成功</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="successToastBody">
+                処理が完了しました
+            </div>
+        </div>
+        
+        <div id="warningToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-warning text-dark">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong class="me-auto">警告</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="warningToastBody">
+                警告が発生しました
+            </div>
+        </div>
+    </div>
     <script src="lib/bootstrap/js/bootstrap.bundle.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js'"></script>
     <script>
+        // API設定
+        const API_BASE_URL = 'http://localhost:3000';
+        
+        // セッション管理
+        class SessionManager {
+            static getSession() {
+                const session = sessionStorage.getItem('userSession') || localStorage.getItem('userSession');
+                if (!session) return null;
+                
+                const sessionData = JSON.parse(session);
+                if (new Date(sessionData.expiresAt) < new Date()) {
+                    this.clearSession();
+                    return null;
+                }
+                return sessionData;
+            }
+            
+            static clearSession() {
+                sessionStorage.removeItem('userSession');
+                localStorage.removeItem('userSession');
+            }
+            
+            static isAuthenticated() {
+                return this.getSession() !== null;
+            }
+            
+                         static getAccessToken() {
+                 const session = this.getSession();
+                 return session ? session.accessToken : null;
+             }
+             
+             static getRefreshToken() {
+                 const session = this.getSession();
+                 return session ? session.refreshToken : null;
+             }
+        }
+        
+        // ルートガード
+        function checkAuth() {
+            if (!SessionManager.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            const session = SessionManager.getSession();
+            if (session.role === 'admin') {
+                // 管理者はadmin.htmlにリダイレクト
+                window.location.href = 'admin.html';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // ログアウト処理
+        function logout() {
+            SessionManager.clearSession();
+            window.location.href = 'login.html';
+        }
+        
+        // ユーザー情報表示
+        function displayUserInfo() {
+            const session = SessionManager.getSession();
+            if (session) {
+                const userInfoDiv = document.getElementById('userInfo');
+                userInfoDiv.innerHTML = `${session.name}<br><small class="text-muted">${session.role === 'admin' ? 'システム管理者' : '本社事務'}</small>`;
+            }
+        }
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 認証チェック
+            if (!checkAuth()) return;
+            
+            // ユーザー情報表示
+            displayUserInfo();
+            
+            // セッション有効期限チェック（5分間隔）
+            setInterval(() => {
+                if (!SessionManager.isAuthenticated()) {
+                    alert('セッションが期限切れです。再度ログインしてください。');
+                    logout();
+                }
+            }, 5 * 60 * 1000);
+        });
         // 年齢チェックでトリガー自動設定のデモ
         document.querySelector('input[type="number"]').addEventListener('change', function() {
             const age = parseInt(this.value);
@@ -906,6 +1044,53 @@
                 }
             } catch (e) { console.warn('[studix] offcanvas init error:', e); }
         })();
+
+        // トースト通知を表示する関数
+        function showToast(type, message, title = null) {
+            const toastId = type + 'Toast';
+            const toastBodyId = type + 'ToastBody';
+            const toast = document.getElementById(toastId);
+            const toastBody = document.getElementById(toastBodyId);
+            
+            if (toast && toastBody) {
+                toastBody.textContent = message;
+                if (title) {
+                    const titleElement = toast.querySelector('.toast-header strong');
+                    if (titleElement) titleElement.textContent = title;
+                }
+                
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.show();
+            }
+        }
+        
+        // エラーレスポンスを処理する関数
+        function handleApiError(error, defaultMessage = 'エラーが発生しました') {
+            let message = defaultMessage;
+            let type = 'error';
+            
+            if (error && error.error) {
+                const apiError = error.error;
+                message = apiError.message || defaultMessage;
+                
+                // エラーコードに基づいてトーストタイプを決定
+                switch (apiError.code) {
+                    case 'VALIDATION_ERROR':
+                        type = 'warning';
+                        break;
+                    case 'SERVICE_UNAVAILABLE':
+                        type = 'warning';
+                        break;
+                    case 'RATE_LIMITED':
+                        type = 'warning';
+                        break;
+                    default:
+                        type = 'error';
+                }
+            }
+            
+            showToast(type, message);
+        }
 
         // ---------------------------------
         // 受注データ送信（API接続）

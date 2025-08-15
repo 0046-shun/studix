@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "userId": "admin1",
+    "name": "管理者",
+    "email": "admin@example.com",
+    "department": "本社",
+    "role": "admin",
+    "passwordHash": "$2a$10$e0OP79E1qrhkuZQuMYRgLu1YREryNsg2sNB6SILFTkCEI1iCCV9xy",
+    "status": "active",
+    "lastLogin": "2025-08-15T02:42:04.346Z",
+    "loginFailureCount": 0,
+    "passwordNeedsReset": false,
+    "passwordExpiresAt": null,
+    "passwordSetAt": "2025-08-15T02:42:04.163Z",
+    "createdAt": "2025-08-15T02:42:04.163Z",
+    "updatedAt": "2025-08-15T02:42:04.163Z"
+  }
+]
